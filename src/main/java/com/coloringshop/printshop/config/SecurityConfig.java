@@ -1,6 +1,6 @@
 package com.coloringshop.printshop.config;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -10,11 +10,11 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
-import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
 @EnableWebSecurity
@@ -32,12 +32,31 @@ public class SecurityConfig {
     }
 	
 	@Bean
+	public WebMvcConfigurer resourceConfigurer(@Value("${app.upload.cover-dir}") String coverDir, 
+	                                           @Value("${app.upload.pdf-dir}") String pdfDir) {
+	    return new WebMvcConfigurer() {
+	        @Override
+	        public void addResourceHandlers(ResourceHandlerRegistry registry) {
+	            // ربط مسار /uploads/covers/ بالمجلد الفعلي للصور
+	            registry.addResourceHandler("/uploads/covers/**")
+	                    .addResourceLocations("file:" + coverDir + "/covers/");
+	            
+	            // ربط مسار /uploads/pdfs/ بالمجلد الفعلي للـ PDF
+	            registry.addResourceHandler("/uploads/pdfs/**")
+	                    .addResourceLocations("file:" + pdfDir + "/pdfs/");
+	        }
+	    };
+	}
+	
+	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             .csrf(csrf -> csrf.disable()) 
             .headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()))
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/v1/**" ).permitAll()
+                .requestMatchers("/api/v1/books/**" ).permitAll()
+                .requestMatchers("/api/v1/orders/**" ).permitAll()
+                .requestMatchers("/api/v1/admin/**").permitAll()
                 .requestMatchers("/h2-console/**" ).permitAll()
                 .anyRequest().authenticated()
                 

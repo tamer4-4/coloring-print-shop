@@ -1,7 +1,8 @@
 package com.coloringshop.printshop.model;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
+
+import java.math.BigDecimal;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -32,7 +33,7 @@ public class OrderItem {
    @ManyToOne(fetch = FetchType.LAZY )
    private Book book;
    
-   private double priceAtOrder;
+   private BigDecimal priceAtOrder;
    
    private int quantity;
    

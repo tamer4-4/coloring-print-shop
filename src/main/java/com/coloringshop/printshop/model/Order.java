@@ -32,7 +32,7 @@ public class Order {
     private LocalDateTime createdAt;
 
     @OneToMany(mappedBy = "order" , cascade = CascadeType.ALL , orphanRemoval = true)
-    private List<OrderItem> item;
+    private List<OrderItem> items;
     
     
     
@@ -41,7 +41,11 @@ public class Order {
 	}
 
 
-	public Order(Long id, String customerName, String address, String phone, Status status, LocalDateTime createdAt) {
+
+
+
+	public Order(Long id, String customerName, String address, String phone, Status status, LocalDateTime createdAt,
+			List<OrderItem> items) {
 		super();
 		this.id = id;
 		this.customerName = customerName;
@@ -49,58 +53,125 @@ public class Order {
 		this.phone = phone;
 		this.status = status;
 		this.createdAt = createdAt;
+		this.items = items;
 	}
+
+
+
 
 
 	public Long getId() {
 		return id;
 	}
 
-	
+
+
+
+
 	public void setId(Long id) {
 		this.id = id;
 	}
+
+
+
+
 
 	public String getCustomerName() {
 		return customerName;
 	}
 
+
+
+
+
 	public void setCustomerName(String customerName) {
 		this.customerName = customerName;
 	}
+
+
+
+
 
 	public String getAddress() {
 		return address;
 	}
 
+
+
+
+
 	public void setAddress(String address) {
 		this.address = address;
 	}
+
+
+
+
 
 	public String getPhone() {
 		return phone;
 	}
 
+
+
+
+
 	public void setPhone(String phone) {
 		this.phone = phone;
 	}
+
+
+
+
 
 	public Status getStatus() {
 		return status;
 	}
 
+
+
+
+
 	public void setStatus(Status status) {
 		this.status = status;
 	}
+
+
+
+
 
 	public LocalDateTime getCreatedAt() {
 		return createdAt;
 	}
 
+
+
+
+
 	public void setCreatedAt(LocalDateTime createdAt) {
 		this.createdAt = createdAt;
 	}
-    
-    
+
+
+
+
+
+	public List<OrderItem> getItems() {
+		return items;
+	}
+
+
+
+
+
+	public void setItems(List<OrderItem> items) {
+		this.items = items;
+	}
+
+
+
+
+
+	
 	
 }
