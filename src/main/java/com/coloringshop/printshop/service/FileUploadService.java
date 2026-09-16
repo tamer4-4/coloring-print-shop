@@ -16,39 +16,35 @@ import java.util.UUID;
 @Service
 public class FileUploadService {
 
-    // ✅ التصحيح: إضافة الأقواس المعقوفة {}
     @Value("${app.upload.pdf-dir}")
     private String pdfDirectory;
 
     @Value("${app.upload.cover-dir}")
     private String coverDirectory;
 
-    /**
-     * رفع ملف وحفظه وإرجاع الرابط
-     */
+
     public String uploadFile(MultipartFile file, String folder, String baseDir) throws IOException {
         
-        // 1. التحقق من أن الملف ليس فارغاً
         if (file.isEmpty()) {
             throw new RuntimeException("الملف فارغ");
         }
 
-        // 2. التحقق من نوع الملف (أمان)
         String originalFilename = file.getOriginalFilename();
         String fileExtension = getFileExtension(originalFilename);
         
-        // التحقق من الامتدادات المسموحة
         if (!isAllowedExtension(fileExtension, folder)) {
             throw new RuntimeException("نوع الملف غير مسموح به: " + fileExtension);
         }
 
-        // 3. إنشاء اسم فريد للملف (عشان مفيش overwrite)
         String uniqueFileName = generateUniqueFileName(originalFilename);
         
+<<<<<<< HEAD
         // ✅ التحسين: استخدام Paths.get لضمان توافق المسارات في كل أنظمة التشغيل
         Path path = Paths.get(baseDir);
+=======
+        Path path = Paths.get(baseDir, folder);
+>>>>>>> 183a1d9951e6a014cc024c00cbdace51f8b0efa9
         
-        // إنشاء الفولدر لو مش موجود
         if (!Files.exists(path)) {
             Files.createDirectories(path);
         }
@@ -56,9 +52,14 @@ public class FileUploadService {
         // 4. حفظ الملف
         Path fullPath = path.resolve(uniqueFileName);
         Files.copy(file.getInputStream(), fullPath, StandardCopyOption.REPLACE_EXISTING);
+<<<<<<< HEAD
       // System.out.println("====> full path :" + fullPath);
         // 5. إرجاع الرابط (URL) الذي سيستخدمه الـ Frontend
         // ملاحظة: تأكد أن هذا المسار مطابق لإعدادات WebMvcConfigurer في الـ SecurityConfig
+=======
+
+    
+>>>>>>> 183a1d9951e6a014cc024c00cbdace51f8b0efa9
         return "/uploads/" + folder + "/" + uniqueFileName;
     }
     
@@ -77,7 +78,6 @@ public class FileUploadService {
         return uploadFile(file, "pdfs", pdfDirectory);
     }
 
-    // ================= دوال مساعدة =================
 
     private String getFileExtension(String filename) {
         if (filename == null || !filename.contains(".")) {
@@ -101,7 +101,6 @@ public class FileUploadService {
         String uuid = UUID.randomUUID().toString().substring(0, 8);
         String extension = getFileExtension(originalFilename);
         
-        // ✅ التحسين: أخذ الاسم قبل آخر نقطة فقط لتجنب المشاكل مع الأسماء التي تحتوي على نقاط متعددة
         String cleanName = originalFilename.substring(0, originalFilename.lastIndexOf("."))
                                           .replaceAll("[^a-zA-Z0-9]", "_");
                                           

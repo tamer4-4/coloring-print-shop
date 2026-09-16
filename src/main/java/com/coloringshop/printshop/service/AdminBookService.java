@@ -87,8 +87,11 @@ public class AdminBookService {
 			, BigDecimal price
 			, MultipartFile coverImage
 			,MultipartFile pdfFile) throws IOException {
-		  System.out.println("========================test method111");
 
+		
+		  
+		  
+		  
 		Book oldBook = bookRepository.findById(id).orElseThrow(() -> new RuntimeException("غير موجود الكتاب"));
 
 		oldBook.setTitle(title);

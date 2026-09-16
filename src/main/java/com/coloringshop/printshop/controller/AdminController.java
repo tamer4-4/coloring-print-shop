@@ -58,6 +58,7 @@ public class AdminController {
         return ResponseEntity.ok(adminOrderService.getAllOrders());
     }
     
+   
     /**
      * إضافة كتاب جديد مع رفع الملفات
      * POST /api/v1/admin/books
@@ -86,6 +87,13 @@ public class AdminController {
 	    }
 	  
 	  
+	  
+	  /**
+	     * تعدل كتاب جديد مع رفع الملفات
+	     * POST /api/v1/admin/books/{bookId}
+	     * 
+	     * Content-Type: multipart/form-data
+	     */
 	  @PutMapping(value = "/books/{bookId}" , consumes = "multipart/form-data")
 	    public ResponseEntity<BookRespons> updateBook(
 	    		@PathVariable Long bookId,
