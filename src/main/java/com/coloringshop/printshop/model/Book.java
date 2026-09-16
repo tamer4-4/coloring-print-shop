@@ -1,6 +1,7 @@
 package com.coloringshop.printshop.model;
 
 import java.math.BigDecimal;
+import java.util.UUID;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

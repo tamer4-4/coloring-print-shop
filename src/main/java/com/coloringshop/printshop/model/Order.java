@@ -1,7 +1,10 @@
 package com.coloringshop.printshop.model;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
+import java.util.UUID;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
@@ -11,6 +14,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 
 @Entity
@@ -25,6 +29,24 @@ public class Order {
     private String address;
    
     private String phone;
+      
+    public String getOrderCode() {
+		return orderCode;
+	}
+
+	public void setOrderCode(String orderCode) {
+		this.orderCode = orderCode;
+	}
+
+	private String orderCode;
+
+
+	private String pin;
+    
+    @PrePersist
+    public void generatePin() {
+        this.pin = String.format("%04d", new Random().nextInt(999999));
+    }
     
     @Enumerated(EnumType.STRING)
     private Status status;
@@ -32,7 +54,7 @@ public class Order {
     private LocalDateTime createdAt;
 
     @OneToMany(mappedBy = "order" , cascade = CascadeType.ALL , orphanRemoval = true)
-    private List<OrderItem> items;
+    private List<OrderItem> items = new ArrayList<>() ;
     
     
     
@@ -66,6 +88,13 @@ public class Order {
 
 
 
+    public String getPin() {
+		return pin;
+	}
+
+	public void setPin(String pin) {
+		this.pin = pin;
+	}
 
 
 	public void setId(Long id) {

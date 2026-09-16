@@ -2,6 +2,9 @@ package com.coloringshop.printshop.controller;
 
 
 import jakarta.validation.Valid;
+
+import java.nio.file.AccessDeniedException;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -33,12 +36,37 @@ public class GuestOrderController {
     }
 
     /**
-     * GET /api/v1/orders/{orderId}/status
+     * GET /api/v1/orders/status/{orderCode}
      * الاستعلام عن حالة الطلب
+     * @throws AccessDeniedException 
      */
-    @GetMapping("/{orderId}/status")
-    public ResponseEntity<orderRespons> getOrderStatus(@PathVariable Long orderId) {
-        orderRespons response = guestOrderService.getOrderStatus(orderId);
+    @GetMapping("status/{orderCode}")
+    public ResponseEntity<orderRespons> getOrderStatus(@PathVariable String orderCode) throws AccessDeniedException {
+        orderRespons response = guestOrderService.getOrderStatus(orderCode);
         return ResponseEntity.ok(response);
     }
+    
+    /**
+    * /api/v1/orders/update/{orderCode}
+    * تعديل الطلب
+     * @throws AccessDeniedException 
+    */
+    @PutMapping("/update/{orderCode}")
+    public ResponseEntity<orderRespons> updateOrder(@PathVariable String orderCode, @RequestParam String pin , @RequestBody OrderRequest req) throws AccessDeniedException {
+        orderRespons response = guestOrderService.updateOrder(orderCode , pin , req);
+        return ResponseEntity.ok(response);
+    }
+    
+    
+    /**
+     * /api/v1/orders/delete/{orderCode}
+     * حذف الطلب
+      * @throws AccessDeniedException 
+     */
+     @DeleteMapping("/delete/{orderCode}")
+     public ResponseEntity<Void> updateOrder(@PathVariable String orderCode, @RequestParam String pin) throws AccessDeniedException {
+         guestOrderService.deleteOrder(orderCode , pin);
+         return ResponseEntity.noContent().build();
+     }
+    
 }

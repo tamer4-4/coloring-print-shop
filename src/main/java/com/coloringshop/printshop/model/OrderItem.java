@@ -3,6 +3,8 @@ package com.coloringshop.printshop.model;
 
 import java.math.BigDecimal;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -27,6 +29,7 @@ public class OrderItem {
    
    @JoinColumn(name = "order_id", nullable = false)
    @ManyToOne(fetch = FetchType.LAZY )
+   @JsonBackReference // ⬅️ السطر ده بيمنع الـ Loop
    private Order order;
    
    @JoinColumn(name = "book_id", nullable = false)

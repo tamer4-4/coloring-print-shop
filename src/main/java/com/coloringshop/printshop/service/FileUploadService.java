@@ -46,7 +46,7 @@ public class FileUploadService {
         String uniqueFileName = generateUniqueFileName(originalFilename);
         
         // ✅ التحسين: استخدام Paths.get لضمان توافق المسارات في كل أنظمة التشغيل
-        Path path = Paths.get(baseDir, folder);
+        Path path = Paths.get(baseDir);
         
         // إنشاء الفولدر لو مش موجود
         if (!Files.exists(path)) {
@@ -56,12 +56,13 @@ public class FileUploadService {
         // 4. حفظ الملف
         Path fullPath = path.resolve(uniqueFileName);
         Files.copy(file.getInputStream(), fullPath, StandardCopyOption.REPLACE_EXISTING);
-
+      // System.out.println("====> full path :" + fullPath);
         // 5. إرجاع الرابط (URL) الذي سيستخدمه الـ Frontend
         // ملاحظة: تأكد أن هذا المسار مطابق لإعدادات WebMvcConfigurer في الـ SecurityConfig
         return "/uploads/" + folder + "/" + uniqueFileName;
     }
-
+    
+    
     /**
      * رفع صورة الغلاف
      */

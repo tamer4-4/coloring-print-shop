@@ -2,6 +2,9 @@ package com.coloringshop.printshop.service;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,14 +23,12 @@ import com.coloringshop.printshop.repository.OrderRepository;
 public class AdminBookService {
 
 	private BookRepository bookRepository;
-	private OrderRepository orderRepository;
 	private FileUploadService fileUploadService;
 
-	public AdminBookService(BookRepository bookRepository, OrderRepository orderRepository,
+	public AdminBookService(BookRepository bookRepository,
 			FileUploadService fileUploadService) {
 		super();
 		this.bookRepository = bookRepository;
-		this.orderRepository = orderRepository;
 		this.fileUploadService = fileUploadService;
 	}
 
@@ -51,6 +52,8 @@ public class AdminBookService {
 
 		return response;
 	}
+	
+	
 
 	public BookRespons addBook(String title, String description, BigDecimal price, MultipartFile pdfFile,
 			MultipartFile coverImage) throws IOException {
@@ -76,9 +79,15 @@ public class AdminBookService {
 		return new BookRespons(savedBook.getId(), savedBook.getTitle(), savedBook.getDescription(), savedBook.getPrice(),
 				savedBook.getCoverImageUrl(), savedBook.getPdfFileUrl());
 	}
+	
+	
 
-	public BookRespons updateBook(Long id, String title, String description, BigDecimal price, MultipartFile coverImage,
-			MultipartFile pdfFile) throws IOException {
+	public BookRespons updateBook(Long id, String title
+			, String description
+			, BigDecimal price
+			, MultipartFile coverImage
+			,MultipartFile pdfFile) throws IOException {
+		  System.out.println("========================test method111");
 
 		Book oldBook = bookRepository.findById(id).orElseThrow(() -> new RuntimeException("غير موجود الكتاب"));
 
@@ -87,13 +96,19 @@ public class AdminBookService {
 		oldBook.setPrice(price);
 
 		if (coverImage != null && !coverImage.isEmpty()) {
-			// TODO: احذف الصورة القديمة من السيرفر
+			// TODO: احذف الصورة القديمة من السير
+			
+			Files.delete(Paths.get(oldBook.getCoverImageUrl()));
+			
+			System.out.println("000000000000000 =>" + Paths.get(oldBook.getCoverImageUrl()));
 			String coverUrl = fileUploadService.uploadCoverImage(coverImage);
 			oldBook.setCoverImageUrl(coverUrl);
 		}
 
 		if (pdfFile != null && !pdfFile.isEmpty()) {
 			// TODO: احذف ملف PDF القديم
+			Files.delete(Paths.get(oldBook.getPdfFileUrl()));
+			System.out.println("00001111110 =>" + Paths.get(oldBook.getPdfFileUrl()));
 			String pdfUrl = fileUploadService.uploadPdf(pdfFile);
 			oldBook.setPdfFileUrl(pdfUrl);
 		}
@@ -105,3 +120,4 @@ public class AdminBookService {
 	}
 
 }
+

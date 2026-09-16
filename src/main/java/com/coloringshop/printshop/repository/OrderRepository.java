@@ -1,6 +1,7 @@
 package com.coloringshop.printshop.repository;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -10,4 +11,5 @@ import com.coloringshop.printshop.model.Status;
 public interface OrderRepository extends JpaRepository<Order, Long> {
 	List<Order> findByStatus(Status status);
 	Order findByPhone(String phone);
+	Order findByOrderCode(String orderCode);
 }

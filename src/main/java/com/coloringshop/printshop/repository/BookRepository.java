@@ -1,5 +1,7 @@
 package com.coloringshop.printshop.repository;
 
+import java.util.UUID;
+
 import org.hibernate.query.Page;
 import org.springframework.data.jpa.repository.JpaRepository;
 
