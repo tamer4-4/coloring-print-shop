@@ -22,11 +22,12 @@ public class FileUploadService {
     @Value("${app.upload.cover-dir}")
     private String coverDirectory;
 
-
+    /**
+     * رفع ملف وحفظه وإرجاع الرابط
+     */
     public String uploadFile(MultipartFile file, String folder, String baseDir) throws IOException {
-        
-        if (file.isEmpty()) {
-            throw new RuntimeException("الملف فارغ");
+        if (file == null || file.isEmpty()) {
+            return null; // بدل ما نرمي Exception، نرجع null لو مفيش ملف
         }
 
         String originalFilename = file.getOriginalFilename();
@@ -38,46 +39,74 @@ public class FileUploadService {
 
         String uniqueFileName = generateUniqueFileName(originalFilename);
         
-<<<<<<< HEAD
-        // ✅ التحسين: استخدام Paths.get لضمان توافق المسارات في كل أنظمة التشغيل
+        // ✅ الحفظ في الـ baseDir مباشرة (بما أنه يحتوي على اسم الفولدر النهائي)
         Path path = Paths.get(baseDir);
-=======
-        Path path = Paths.get(baseDir, folder);
->>>>>>> 183a1d9951e6a014cc024c00cbdace51f8b0efa9
         
         if (!Files.exists(path)) {
             Files.createDirectories(path);
         }
 
-        // 4. حفظ الملف
         Path fullPath = path.resolve(uniqueFileName);
         Files.copy(file.getInputStream(), fullPath, StandardCopyOption.REPLACE_EXISTING);
-<<<<<<< HEAD
-      // System.out.println("====> full path :" + fullPath);
-        // 5. إرجاع الرابط (URL) الذي سيستخدمه الـ Frontend
-        // ملاحظة: تأكد أن هذا المسار مطابق لإعدادات WebMvcConfigurer في الـ SecurityConfig
-=======
 
-    
->>>>>>> 183a1d9951e6a014cc024c00cbdace51f8b0efa9
+        // إرجاع الرابط للـ Frontend
         return "/uploads/" + folder + "/" + uniqueFileName;
     }
-    
-    
-    /**
-     * رفع صورة الغلاف
-     */
+
     public String uploadCoverImage(MultipartFile file) throws IOException {
         return uploadFile(file, "covers", coverDirectory);
     }
 
-    /**
-     * رفع ملف PDF
-     */
     public String uploadPdf(MultipartFile file) throws IOException {
         return uploadFile(file, "pdfs", pdfDirectory);
     }
 
+    /**
+     * حذف صورة غلاف قديمة
+     */
+    public void deleteCoverImage(String imageUrl) {
+        // ✅ مبنمررش الـ folder هنا، بنمرر بس الـ baseDir
+        deleteFile(imageUrl, coverDirectory); 
+    }
+
+    /**
+     * حذف ملف PDF قديم
+     */
+    public void deletePdf(String pdfUrl) {
+        // ✅ مبنمررش الـ folder هنا، بنمرر بس الـ baseDir
+        deleteFile(pdfUrl, pdfDirectory);
+    }
+
+    /**
+     * دالة مساعدة للحذف الفعلي من القرص
+     */
+    private void deleteFile(String fileUrl, String baseDir) {
+        if (fileUrl == null || fileUrl.isEmpty()) {
+            return;
+        }
+
+        try {
+            // 1. استخراج اسم الملف من الرابط
+            String fileName = fileUrl.substring(fileUrl.lastIndexOf("/") + 1);
+            
+            // 2. ✅ بناء المسار الصحيح (baseDir + fileName فقط)
+            Path filePath = Paths.get(baseDir, fileName);
+            
+            // 3. حذف الملف
+            boolean deleted = Files.deleteIfExists(filePath);
+            
+            if (deleted) {
+                System.out.println("✅ تم حذف الملف من القرص: " + fileName);
+            } else {
+                System.out.println("⚠️ الملف غير موجود في القرص: " + filePath.toString());
+            }
+            
+        } catch (IOException e) {
+            System.err.println("❌ فشل حذف الملف: " + e.getMessage());
+        }
+    }
+
+    // ================= دوال مساعدة =================
 
     private String getFileExtension(String filename) {
         if (filename == null || !filename.contains(".")) {
@@ -101,8 +130,13 @@ public class FileUploadService {
         String uuid = UUID.randomUUID().toString().substring(0, 8);
         String extension = getFileExtension(originalFilename);
         
-        String cleanName = originalFilename.substring(0, originalFilename.lastIndexOf("."))
+        String cleanName = "";
+        if (originalFilename.contains(".")) {
+            cleanName = originalFilename.substring(0, originalFilename.lastIndexOf("."))
                                           .replaceAll("[^a-zA-Z0-9]", "_");
+        } else {
+            cleanName = originalFilename.replaceAll("[^a-zA-Z0-9]", "_");
+        }
                                           
         return timestamp + "_" + uuid + "_" + cleanName + extension;
     }

@@ -11,9 +11,11 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.coloringshop.printshop.dto.OrderItemRequset;
-import com.coloringshop.printshop.dto.OrderRequest;
-import com.coloringshop.printshop.dto.orderRespons;
+import com.coloringshop.printshop.dto.OrderDto.OrderItemRequset;
+import com.coloringshop.printshop.dto.OrderDto.OrderRequest;
+import com.coloringshop.printshop.dto.OrderDto.orderRespons;
+import com.coloringshop.printshop.excption.BookNotFoundException;
+import com.coloringshop.printshop.excption.OrderNotFoundException;
 import com.coloringshop.printshop.model.Book;
 import com.coloringshop.printshop.model.Order;
 import com.coloringshop.printshop.model.OrderItem;
@@ -33,6 +35,7 @@ public class GuestOrderService {
 		this.bookRepository = bookRepository;
 	}
 
+
 	@Transactional
 	public orderRespons createOrder(OrderRequest req) {
 
@@ -49,7 +52,7 @@ public class GuestOrderService {
 		for (OrderItemRequset itemRequest : req.items()) {
 
 			Book book = bookRepository.findById(itemRequest.bookId())
-					.orElseThrow(() -> new RuntimeException("الكتاب برقم " + itemRequest.bookId() + " غير موجود"));
+					.orElseThrow(() -> new BookNotFoundException("الكتاب برقم " + itemRequest.bookId() + " غير موجود"));
 
 			OrderItem orderItem = new OrderItem();
 			orderItem.setBook(book);
@@ -63,45 +66,39 @@ public class GuestOrderService {
 			totalPrice = totalPrice.add(itemTotal);
 		}
 
-		order.setItems(orderItems);
-
+		order.getItems().addAll(orderItems);
+         order.setTotalPrice(totalPrice);
 		Order savedOrder = orderRepository.save(order);
 
 		return new orderRespons(savedOrder.getId(), savedOrder.getCustomerName(), savedOrder.getAddress(),
-				savedOrder.getPhone(), savedOrder.getStatus(), savedOrder.getPin(),savedOrder.getOrderCode(), totalPrice, savedOrder.getCreatedAt());
+				savedOrder.getPhone(), savedOrder.getStatus(), savedOrder.getPin(),savedOrder.getOrderCode(), savedOrder.getTotalPrice(), savedOrder.getCreatedAt());
 
 	}
 
-	public orderRespons getOrderStatus(String orderCode) throws AccessDeniedException {
+	public orderRespons getOrderStatus(String orderCode) throws AccessDeniedException, OrderNotFoundException {
              
 		Order order = orderRepository.findByOrderCode(orderCode);
 		if (order == null) {
-			throw new RuntimeException("غير موجود بكود " + orderCode);
+			throw new OrderNotFoundException("الاورد غير موجود :" + orderCode);
 		}
           
-		BigDecimal totalPrice = BigDecimal.ZERO;
-		if (order.getItems() != null) {
-			for (OrderItem item : order.getItems()) {
-				BigDecimal itemTotal = item.getPriceAtOrder().multiply(BigDecimal.valueOf(item.getQuantity()));
-				totalPrice = totalPrice.add(itemTotal);
-			}
-		}
+
 
 		return new orderRespons(order.getId(), order.getCustomerName(), order.getAddress(), order.getPhone(),
-				order.getStatus(), order.getPin(),order.getOrderCode() ,totalPrice, order.getCreatedAt());
+				order.getStatus(), order.getPin(),order.getOrderCode() ,order.getTotalPrice(), order.getCreatedAt());
 	}
 
 	@Transactional
 	public orderRespons updateOrder(String orderCode
 			,String pin
-			, OrderRequest orderReq) throws AccessDeniedException {
+			, OrderRequest orderReq) throws AccessDeniedException, OrderNotFoundException {
 		Order order = orderRepository.findByOrderCode(orderCode);
 		if (order == null) {
-			throw new RuntimeException("غير موجود بكود " + orderCode);
+			throw new OrderNotFoundException("الاورد غير موجود :" + orderCode);
 		}
 		
 		if (!(order.getStatus().equals(Status.PENDING))) {
-			throw new RuntimeException("لا يمكن تعديل هذا الطلب بعد الان " + orderCode);
+			throw new OrderNotFoundException("لا يمكن تعديل هذا الطلب بعد الان " + orderCode);
 		}
 		if(!(order.getPin().equals(pin))) {
 			throw new AccessDeniedException("غير مسموح");
@@ -116,7 +113,7 @@ public class GuestOrderService {
 		List<OrderItem> items = new ArrayList<>();
 		for (OrderItemRequset it : orderReq.items()) {
 			Book book = bookRepository.findById(it.bookId())
-					.orElseThrow(() -> new RuntimeException("الكتاب مش موجود " + it.bookId()));
+					.orElseThrow(() -> new BookNotFoundException("الكتاب غير موجود " + it.bookId()));
 			OrderItem orderItem = new OrderItem();
 			orderItem.setBook(book);
 			orderItem.setPriceAtOrder(book.getPrice());
@@ -132,24 +129,25 @@ public class GuestOrderService {
 		}
         order.getItems().clear();
 		order.getItems().addAll(items);
+		order.setTotalPrice(totalPrice);
 
 		Order savedOrder = orderRepository.save(order);
 
 		return new orderRespons(savedOrder.getId(), savedOrder.getCustomerName(), savedOrder.getAddress(),
-				savedOrder.getPhone(), savedOrder.getStatus(), savedOrder.getPin(),savedOrder.getOrderCode(), totalPrice, savedOrder.getCreatedAt());
+				savedOrder.getPhone(), savedOrder.getStatus(), savedOrder.getPin(),savedOrder.getOrderCode(), savedOrder.getTotalPrice(), savedOrder.getCreatedAt());
 
 	}
 	
 	@Transactional
 	public void deleteOrder(String orderCode
 			,String pin
-             ) throws AccessDeniedException {
+             ) throws AccessDeniedException, OrderNotFoundException {
 		Order order = orderRepository.findByOrderCode(orderCode);
 		if (order == null) {
-			throw new RuntimeException("غير موجود بكود " + orderCode);
+			throw new OrderNotFoundException("الاورد غير موجود :" + orderCode);
 		}
 		if (!(order.getStatus().equals(Status.PENDING))) {
-			throw new RuntimeException("لا يمكن حذف هذا الطلب بعد الان " + orderCode);
+			throw new OrderNotFoundException("لا يمكن حذف هذا الطلب بعد الان " + orderCode);
 		}
 		
 		if(!(order.getPin().equals(pin))) {

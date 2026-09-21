@@ -1,4 +1,4 @@
-package com.coloringshop.printshop.dto;
+package com.coloringshop.printshop.dto.BookDto;
 
 import java.math.BigDecimal;
 import java.util.UUID;

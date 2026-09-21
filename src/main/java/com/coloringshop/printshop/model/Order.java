@@ -1,5 +1,6 @@
 package com.coloringshop.printshop.model;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -42,6 +43,16 @@ public class Order {
 
 
 	private String pin;
+	
+	public BigDecimal getTotalPrice() {
+		return totalPrice;
+	}
+
+	public void setTotalPrice(BigDecimal totalPrice) {
+		this.totalPrice = totalPrice;
+	}
+
+	private BigDecimal totalPrice;
     
     @PrePersist
     public void generatePin() {

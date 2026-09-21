@@ -1,4 +1,4 @@
-package com.coloringshop.printshop.dto;
+package com.coloringshop.printshop.dto.OrderDto;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -24,7 +24,7 @@ public record orderRespons(
 		 String orderCode,
 		 
 		 BigDecimal totalPrice,
-
+		 
 		 LocalDateTime createdAt
 		
 		

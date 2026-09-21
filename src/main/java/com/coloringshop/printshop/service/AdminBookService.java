@@ -12,9 +12,11 @@ import java.util.Map;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ObjectUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.coloringshop.printshop.dto.BookRespons;
+import com.coloringshop.printshop.dto.BookDto.BookRespons;
+import com.coloringshop.printshop.excption.BookNotFoundException;
 import com.coloringshop.printshop.model.Book;
 import com.coloringshop.printshop.repository.BookRepository;
 import com.coloringshop.printshop.repository.OrderRepository;
@@ -86,40 +88,62 @@ public class AdminBookService {
 			, String description
 			, BigDecimal price
 			, MultipartFile coverImage
-			,MultipartFile pdfFile) throws IOException {
-
-		
+			,MultipartFile pdfFile) throws IOException, BookNotFoundException { 
 		  
-		  
-		  
-		Book oldBook = bookRepository.findById(id).orElseThrow(() -> new RuntimeException("غير موجود الكتاب"));
+		Book oldBook = bookRepository.findById(id).orElseThrow(() -> new BookNotFoundException("غير موجود الكتاب : " + id));
 
 		oldBook.setTitle(title);
 		oldBook.setDescription(description);
 		oldBook.setPrice(price);
 
 		if (coverImage != null && !coverImage.isEmpty()) {
+			
 			// TODO: احذف الصورة القديمة من السير
+
+			try {
+			String newCoverUrl = fileUploadService.uploadCoverImage(coverImage);
+
+			if(oldBook.getCoverImageUrl() != null) {
+             fileUploadService.deleteCoverImage(oldBook.getCoverImageUrl());
+			}
 			
-			Files.delete(Paths.get(oldBook.getCoverImageUrl()));
-			
-			System.out.println("000000000000000 =>" + Paths.get(oldBook.getCoverImageUrl()));
-			String coverUrl = fileUploadService.uploadCoverImage(coverImage);
-			oldBook.setCoverImageUrl(coverUrl);
+			oldBook.setCoverImageUrl(newCoverUrl);
+			}
+			catch (IOException e) {
+                throw new RuntimeException("فشل رفع صورة الغلاف الجديدة", e);
+			}
 		}
 
 		if (pdfFile != null && !pdfFile.isEmpty()) {
 			// TODO: احذف ملف PDF القديم
-			Files.delete(Paths.get(oldBook.getPdfFileUrl()));
-			System.out.println("00001111110 =>" + Paths.get(oldBook.getPdfFileUrl()));
-			String pdfUrl = fileUploadService.uploadPdf(pdfFile);
-			oldBook.setPdfFileUrl(pdfUrl);
+			try {
+			String newPdfUrl = fileUploadService.uploadPdf(pdfFile);
+			 if(oldBook.getPdfFileUrl() != null) {
+	             fileUploadService.deletePdf(oldBook.getPdfFileUrl());
+				}
+			
+			oldBook.setPdfFileUrl(newPdfUrl);
+			}catch (IOException e) {
+                throw new RuntimeException("فشل رفع ملف الـ PDF الجديد", e);
+			}
 		}
 
 		Book book = bookRepository.save(oldBook);
 		return new BookRespons(book.getId(), book.getTitle(), book.getDescription(), book.getPrice(),
 				book.getCoverImageUrl(), book.getPdfFileUrl());
 
+	}
+	
+	public void deleteBook(Long id) throws BookNotFoundException {
+	   Book book = 	bookRepository.findById(id).orElseThrow(()-> new BookNotFoundException("غير موجود الكتاب : " + id));
+	
+			   fileUploadService.deleteCoverImage(book.getCoverImageUrl());
+
+	        fileUploadService.deletePdf(book.getPdfFileUrl());
+
+	  
+	   
+	   bookRepository.delete(book);  
 	}
 
 }

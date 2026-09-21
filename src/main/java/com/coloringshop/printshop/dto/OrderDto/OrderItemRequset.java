@@ -1,4 +1,4 @@
-package com.coloringshop.printshop.dto;
+package com.coloringshop.printshop.dto.OrderDto;
 
 import java.util.UUID;
 

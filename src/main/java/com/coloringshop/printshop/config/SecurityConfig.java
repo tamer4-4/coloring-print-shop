@@ -10,11 +10,15 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+import com.coloringshop.printshop.security.JwtAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -22,12 +26,21 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 public class SecurityConfig {
 
 
+	
+	   private final JwtAuthenticationFilter jwtAuthenticationFilter;
+
+	    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
+	        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+	    }
+
+
 	@Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
         return (web) -> web.ignoring().requestMatchers(
                 "/v3/api-docs/**",
                 "/swagger-ui/**",
-                "/swagger-ui.html"
+                "/swagger-ui.html",
+"/h2-console/**" 
         );
     }
 	
@@ -53,15 +66,22 @@ public class SecurityConfig {
         http
             .csrf(csrf -> csrf.disable()) 
             .headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()))
+            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/v1/books/**" ).permitAll()
                 .requestMatchers("/api/v1/orders/**" ).permitAll()
-                .requestMatchers("/api/v1/admin/**").permitAll()
-                .requestMatchers("/h2-console/**" ).permitAll()
+                .requestMatchers("/api/auth/**").permitAll()
+          
+                
+      
+                
+                .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
+
                 .anyRequest().authenticated()
                 
             )
-		.httpBasic(Customizer.withDefaults());
+        
+        .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
 
         return http.build();
