@@ -1,9 +1,5 @@
 package com.coloringshop.printshop.dto.OrderDto;
 
-import java.util.UUID;
-
-import org.springframework.stereotype.Component;
-
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 

@@ -1,7 +1,6 @@
 package com.coloringshop.printshop.dto.BookDto;
 
 import java.math.BigDecimal;
-import java.util.UUID;
 
 public record BookRespons(
 		Long id,

@@ -5,5 +5,6 @@ public enum Status {
 	PENDING,
 	PRINTING,
 	READY,
-	PICKED_UP
+	PICKED_UP, 
+	CANCELLED
 }

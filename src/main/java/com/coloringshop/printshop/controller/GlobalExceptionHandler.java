@@ -16,6 +16,7 @@ import org.springframework.web.context.request.WebRequest;
 
 import com.coloringshop.printshop.excption.AdminNotFoundException;
 import com.coloringshop.printshop.excption.BookNotFoundException;
+import com.coloringshop.printshop.excption.FileTooLargeException;
 import com.coloringshop.printshop.excption.OrderNotFoundException;
 
 @ControllerAdvice
@@ -111,6 +112,19 @@ public class GlobalExceptionHandler {
 	public ProblemDetail handleUsernameFailedLoginException(UsernameNotFoundException ex, WebRequest request) {
 		ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, 
 				"User Failed Login");
+		
+		Map<String, Object> errMap = new HashMap<>();
+		errMap.put("erorr", ex.getMessage());
+		errMap.put("timestamp", LocalDateTime.now());
+		problemDetail.setProperty("errors", errMap);
+		
+		return problemDetail;
+	}
+	
+	@ExceptionHandler(FileTooLargeException.class)
+	public ProblemDetail handleUsernameFailedLoginException(FileTooLargeException ex, WebRequest request) {
+		ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, 
+				"file Failed");
 		
 		Map<String, Object> errMap = new HashMap<>();
 		errMap.put("erorr", ex.getMessage());

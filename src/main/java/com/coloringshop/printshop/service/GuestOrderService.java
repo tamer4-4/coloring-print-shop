@@ -4,7 +4,6 @@ import java.math.BigDecimal;
 import java.nio.file.AccessDeniedException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
@@ -24,6 +23,7 @@ import com.coloringshop.printshop.repository.BookRepository;
 import com.coloringshop.printshop.repository.OrderRepository;
 
 @Service
+@Transactional
 public class GuestOrderService {
 
 	private OrderRepository orderRepository;
@@ -36,7 +36,6 @@ public class GuestOrderService {
 	}
 
 
-	@Transactional
 	public orderRespons createOrder(OrderRequest req) {
 
 		Order order = new Order();
@@ -88,7 +87,6 @@ public class GuestOrderService {
 				order.getStatus(), order.getPin(),order.getOrderCode() ,order.getTotalPrice(), order.getCreatedAt());
 	}
 
-	@Transactional
 	public orderRespons updateOrder(String orderCode
 			,String pin
 			, OrderRequest orderReq) throws AccessDeniedException, OrderNotFoundException {
@@ -138,7 +136,6 @@ public class GuestOrderService {
 
 	}
 	
-	@Transactional
 	public void deleteOrder(String orderCode
 			,String pin
              ) throws AccessDeniedException, OrderNotFoundException {

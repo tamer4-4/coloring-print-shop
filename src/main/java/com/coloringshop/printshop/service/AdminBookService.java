@@ -2,9 +2,6 @@ package com.coloringshop.printshop.service;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,26 +9,24 @@ import java.util.Map;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.util.ObjectUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.coloringshop.printshop.dto.BookDto.BookRespons;
 import com.coloringshop.printshop.excption.BookNotFoundException;
 import com.coloringshop.printshop.model.Book;
 import com.coloringshop.printshop.repository.BookRepository;
-import com.coloringshop.printshop.repository.OrderRepository;
 
 @Service
 public class AdminBookService {
 
 	private BookRepository bookRepository;
-	private FileUploadService fileUploadService;
+    private final CloudinaryService cloudinaryService; 
 
 	public AdminBookService(BookRepository bookRepository,
-			FileUploadService fileUploadService) {
+			CloudinaryService cloudinaryService) {
 		super();
 		this.bookRepository = bookRepository;
-		this.fileUploadService = fileUploadService;
+		this.cloudinaryService = cloudinaryService;
 	}
 
 	public List<Book> getAllBooks() {
@@ -67,13 +62,13 @@ public class AdminBookService {
 
 		if (coverImage != null && !coverImage.isEmpty()) {
 			// TODO: احذف الصورة القديمة من السيرفر
-			String coverUrl = fileUploadService.uploadCoverImage(coverImage);
+			String coverUrl = cloudinaryService.uploadCoverImage(coverImage);
 			book.setCoverImageUrl(coverUrl);
 		}
 
 		if (pdfFile != null && !pdfFile.isEmpty()) {
 			// TODO: احذف ملف PDF القديم
-			String pdfUrl = fileUploadService.uploadPdf(pdfFile);
+			String pdfUrl = cloudinaryService.uploadPdf(pdfFile);
 			book.setPdfFileUrl(pdfUrl);
 		}
               Book savedBook = bookRepository.save(book);
@@ -100,32 +95,15 @@ public class AdminBookService {
 			
 			// TODO: احذف الصورة القديمة من السير
 
-			try {
-			String newCoverUrl = fileUploadService.uploadCoverImage(coverImage);
-
-			if(oldBook.getCoverImageUrl() != null) {
-             fileUploadService.deleteCoverImage(oldBook.getCoverImageUrl());
-			}
+			String newCoverUrl = cloudinaryService.uploadCoverImage(coverImage);
 			
 			oldBook.setCoverImageUrl(newCoverUrl);
-			}
-			catch (IOException e) {
-                throw new RuntimeException("فشل رفع صورة الغلاف الجديدة", e);
-			}
 		}
 
 		if (pdfFile != null && !pdfFile.isEmpty()) {
-			// TODO: احذف ملف PDF القديم
-			try {
-			String newPdfUrl = fileUploadService.uploadPdf(pdfFile);
-			 if(oldBook.getPdfFileUrl() != null) {
-	             fileUploadService.deletePdf(oldBook.getPdfFileUrl());
-				}
-			
+			String newPdfUrl = cloudinaryService.uploadPdf(pdfFile);
+
 			oldBook.setPdfFileUrl(newPdfUrl);
-			}catch (IOException e) {
-                throw new RuntimeException("فشل رفع ملف الـ PDF الجديد", e);
-			}
 		}
 
 		Book book = bookRepository.save(oldBook);
@@ -136,12 +114,7 @@ public class AdminBookService {
 	
 	public void deleteBook(Long id) throws BookNotFoundException {
 	   Book book = 	bookRepository.findById(id).orElseThrow(()-> new BookNotFoundException("غير موجود الكتاب : " + id));
-	
-			   fileUploadService.deleteCoverImage(book.getCoverImageUrl());
-
-	        fileUploadService.deletePdf(book.getPdfFileUrl());
-
-	  
+  
 	   
 	   bookRepository.delete(book);  
 	}

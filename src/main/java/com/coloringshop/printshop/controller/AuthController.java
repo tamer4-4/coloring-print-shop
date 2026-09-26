@@ -21,7 +21,6 @@ import com.coloringshop.printshop.excption.AdminNotFoundException;
 import com.coloringshop.printshop.model.Admin;
 import com.coloringshop.printshop.repository.AdminRepository;
 import com.coloringshop.printshop.security.JwtUtils;
-import com.coloringshop.printshop.security.UserDetailsServiceImpl;
 
 import jakarta.validation.Valid;
 

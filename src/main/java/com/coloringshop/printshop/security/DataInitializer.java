@@ -25,7 +25,7 @@ public class DataInitializer implements CommandLineRunner {
 	            admin.setUsername("admin");
 	            admin.setPassword(passwordEncoder.encode("123")); 
 	            adminRepository.save(admin);
-	            System.out.println("✅ تم إنشاء أدمن افتراضي - Username: admin, Password: 123");
+//	            System.out.println("✅ تم إنشاء أدمن افتراضي - Username: admin, Password: 123");
 	        }
 	    }
 	

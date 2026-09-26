@@ -1,18 +1,26 @@
 package com.coloringshop.printshop.controller;
 
 
-import jakarta.validation.Valid;
-
 import java.nio.file.AccessDeniedException;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.coloringshop.printshop.dto.OrderDto.OrderRequest;
 import com.coloringshop.printshop.dto.OrderDto.orderRespons;
 import com.coloringshop.printshop.excption.OrderNotFoundException;
 import com.coloringshop.printshop.service.GuestOrderService;
+
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/v1/orders")
@@ -68,7 +76,7 @@ public class GuestOrderController {
      * @throws OrderNotFoundException 
      */
      @DeleteMapping("/delete/{orderCode}")
-     public ResponseEntity<Void> updateOrder(@PathVariable String orderCode, @RequestParam String pin) throws AccessDeniedException, OrderNotFoundException {
+     public ResponseEntity<Void> deleteOrder(@PathVariable String orderCode, @RequestParam String pin) throws AccessDeniedException, OrderNotFoundException {
          guestOrderService.deleteOrder(orderCode , pin);
          return ResponseEntity.noContent().build();
      }

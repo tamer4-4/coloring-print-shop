@@ -5,9 +5,7 @@ import java.math.BigDecimal;
 import java.nio.file.AccessDeniedException;
 import java.util.List;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -19,23 +17,18 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.coloringshop.printshop.dto.BookDto.BookRequset;
 import com.coloringshop.printshop.dto.BookDto.BookRespons;
 import com.coloringshop.printshop.dto.OrderDto.OrderRequest;
 import com.coloringshop.printshop.dto.OrderDto.orderRespons;
+import com.coloringshop.printshop.dto.StatisticsResponse.StatisticsResponse;
 import com.coloringshop.printshop.excption.OrderNotFoundException;
-import com.coloringshop.printshop.model.Book;
-import com.coloringshop.printshop.model.Order;
 import com.coloringshop.printshop.model.Status;
-import com.coloringshop.printshop.repository.BookRepository;
-import com.coloringshop.printshop.repository.OrderRepository;
 import com.coloringshop.printshop.service.AdminBookService;
 import com.coloringshop.printshop.service.AdminOrderService;
-import com.coloringshop.printshop.service.FileUploadService;
 import com.coloringshop.printshop.service.GuestOrderService;
+import com.coloringshop.printshop.service.StatisticsService;
 
 import jakarta.validation.Valid;
-import jakarta.websocket.server.PathParam;
 
 
 
@@ -45,24 +38,33 @@ public class AdminController {
  
 
     private final AdminBookService bookService;
-    private final FileUploadService fileUploadService;
     private final AdminOrderService adminOrderService;
     private final GuestOrderService guestOrderService;
-      
+    private final StatisticsService statisticsService;   
 
 
     
    
-    public AdminController(AdminBookService bookService, FileUploadService fileUploadService,
-			AdminOrderService adminOrderService, GuestOrderService guestOrderService) {
+
+    
+    
+    public AdminController(AdminBookService bookService, AdminOrderService adminOrderService,
+			GuestOrderService guestOrderService, StatisticsService statisticsService) {
 		super();
 		this.bookService = bookService;
-		this.fileUploadService = fileUploadService;
 		this.adminOrderService = adminOrderService;
 		this.guestOrderService = guestOrderService;
+		this.statisticsService = statisticsService;
 	}
 
 
+	@GetMapping("/statistics")
+    public ResponseEntity<StatisticsResponse> getStatistics() {
+        StatisticsResponse stats = statisticsService.getAllStatistics();
+        return ResponseEntity.ok(stats);
+    }
+    
+    
 	/**
      * إضافة كتاب جديد مع رفع الملفات
      * POST /api/v1/admin/books
@@ -144,6 +146,7 @@ public class AdminController {
 	     * GET /api/v1/admin/orders
 	     * عرض كل الطلبات للأدمن
 	     */
+	  
 	    @GetMapping("/orders")
 	    public ResponseEntity<List<orderRespons>> getAllOrders() {
 	        return ResponseEntity.ok(adminOrderService.getAllOrders());
