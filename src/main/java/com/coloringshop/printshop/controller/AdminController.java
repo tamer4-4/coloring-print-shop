@@ -78,13 +78,14 @@ public class AdminController {
 	            @RequestParam("description") String description,
 	            @RequestParam("price") BigDecimal price,
 	            @RequestParam(value = "coverImage", required = false) MultipartFile coverImage,
-	            @RequestParam(value = "pdfFile", required = false) MultipartFile pdfFile
+	            @RequestParam(value = "pdfFile", required = false) MultipartFile pdfFile,
+	            @RequestParam(required = false) String pdfFileUrl
 	    ) {
                    	        
 	    BookRespons savedBook;
 		try {
 			savedBook = bookService
-					.addBook(title, description, price, pdfFile, coverImage);
+					.addBook(title, description, price, pdfFile, coverImage,pdfFileUrl);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -107,7 +108,9 @@ public class AdminController {
 	            @RequestParam("description") String description,
 	            @RequestParam("price") BigDecimal price,
 	            @RequestParam(value = "coverImage", required = false) MultipartFile coverImage,
-	            @RequestParam(value = "pdfFile", required = false) MultipartFile pdfFile
+	            @RequestParam(value = "pdfFile", required = false) MultipartFile pdfFile,
+	            @RequestParam(required = false) String pdfFileUrl
+
 	    ) {
                  	        
 	    BookRespons savedBook;
@@ -118,7 +121,7 @@ public class AdminController {
 							, description
 							, price
 							, coverImage
-							, pdfFile );
+							, pdfFile,pdfFileUrl );
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
