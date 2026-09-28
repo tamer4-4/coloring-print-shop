@@ -22,12 +22,12 @@ import jakarta.transaction.Transactional;
 public class AdminBookService {
 
 	private BookRepository bookRepository;
-	private final CloudinaryService cloudinaryService;
+	private final R2Service r2Service;
 
-	public AdminBookService(BookRepository bookRepository, CloudinaryService cloudinaryService) {
+	public AdminBookService(BookRepository bookRepository,  R2Service r2Service) {
 		super();
 		this.bookRepository = bookRepository;
-		this.cloudinaryService = cloudinaryService;
+		this.r2Service = r2Service;
 	}
 
 	public List<Book> getAllBooks() {
@@ -51,26 +51,19 @@ public class AdminBookService {
 		return response;
 	}
 
-	public BookRespons addBook(String title, String description, BigDecimal price, MultipartFile pdfFile,
-			MultipartFile coverImage, String pdfFileUrl) throws IOException {
+	public BookRespons addBook(String title, String description, BigDecimal price, 
+			String coverImage, String pdfFileUrl) throws IOException {
 
 		Book book = new Book();
 		book.setTitle(title);
 		book.setDescription(description);
 		book.setPrice(price);
 
-// 🖼️ الصورة الغلاف (صغيرة - بترفع عادي)
-		if (coverImage != null && !coverImage.isEmpty()) {
-			String coverUrl = cloudinaryService.uploadCoverImage(coverImage);
-			book.setCoverImageUrl(coverUrl);
+		if (coverImage != null && !coverImage.isBlank()) {
+			book.setCoverImageUrl(coverImage);
 		}
 
-// 📄 الـ PDF: الرابط المباشر من المتصفح (الأولوية) أو الملف القديم
 		if (pdfFileUrl != null && !pdfFileUrl.isBlank()) {
-// ✅ الطريق الجديد: الرابط جاهز من المتصفح (مفيش استهلاك RAM)
-			if (!pdfFileUrl.startsWith("https://res.cloudinary.com/")) {
-				throw new RuntimeException("رابط الـ PDF لازم يكون من Cloudinary فقط");
-			}
 			book.setPdfFileUrl(pdfFileUrl);
 		} 
 
@@ -82,8 +75,8 @@ public class AdminBookService {
 
 	@Transactional
 	public BookRespons updateBook(Long id, String title, String description, BigDecimal price,
-	                              MultipartFile pdfFile, MultipartFile coverImage,
-	                              String pdfFileUrl) throws IOException {
+	                              String pdfFile, String coverImage
+	                             ) throws IOException {
 
 	    Book book = bookRepository.findById(id)
 	            .orElseThrow(() -> new RuntimeException("الكتاب غير موجود"));
@@ -95,17 +88,11 @@ public class AdminBookService {
 	    // 🖼️ الصورة الغلاف: لو فيه صورة جديدة، استبدل القديم
 	    if (coverImage != null && !coverImage.isEmpty()) {
 	        // TODO: احذف الصورة القديمة من Cloudinary لو موجودة
-	        String coverUrl = cloudinaryService.uploadCoverImage(coverImage);
-	        book.setCoverImageUrl(coverUrl);
+	        book.setCoverImageUrl(coverImage);
 	    }
 
-	    // 📄 الـ PDF: لو فيه رابط جديد، استبدل القديم | لو مفيش، احتفظ بالقديم
-	    if (pdfFileUrl != null && !pdfFileUrl.isBlank()) {
-	        if (!pdfFileUrl.startsWith("https://res.cloudinary.com/")) {
-	            throw new RuntimeException("رابط الـ PDF لازم يكون من Cloudinary فقط");
-	        }
-	        // TODO: احذف الـ PDF القديم من Cloudinary لو موجود
-	        book.setPdfFileUrl(pdfFileUrl);
+	    if (pdfFile != null && !pdfFile.isBlank()) {
+	        book.setPdfFileUrl(pdfFile);
 	    } 
 	    // لو الاتنين فاضيين = محتفظ بالـ pdfFileUrl القديم ✅
 
@@ -115,6 +102,9 @@ public class AdminBookService {
 	                          updatedBook.getDescription(), updatedBook.getPrice(),
 	                          updatedBook.getCoverImageUrl(), updatedBook.getPdfFileUrl());
 	}
+	
+	
+	
 	public void deleteBook(Long id) throws BookNotFoundException {
 		Book book = bookRepository.findById(id)
 				.orElseThrow(() -> new BookNotFoundException("غير موجود الكتاب : " + id));

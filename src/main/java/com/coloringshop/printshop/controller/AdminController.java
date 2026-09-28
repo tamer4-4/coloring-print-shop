@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.nio.file.AccessDeniedException;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -27,6 +28,7 @@ import com.coloringshop.printshop.model.Status;
 import com.coloringshop.printshop.service.AdminBookService;
 import com.coloringshop.printshop.service.AdminOrderService;
 import com.coloringshop.printshop.service.GuestOrderService;
+import com.coloringshop.printshop.service.R2Service;
 import com.coloringshop.printshop.service.StatisticsService;
 
 import jakarta.validation.Valid;
@@ -42,7 +44,8 @@ public class AdminController {
     private final AdminOrderService adminOrderService;
     private final GuestOrderService guestOrderService;
     private final StatisticsService statisticsService;   
-
+  
+    private final R2Service r2Service;   
 
     
    
@@ -50,12 +53,13 @@ public class AdminController {
     
     
     public AdminController(AdminBookService bookService, AdminOrderService adminOrderService,
-			GuestOrderService guestOrderService, StatisticsService statisticsService) {
+			GuestOrderService guestOrderService, StatisticsService statisticsService , R2Service r2Service) {
 		super();
 		this.bookService = bookService;
 		this.adminOrderService = adminOrderService;
 		this.guestOrderService = guestOrderService;
 		this.statisticsService = statisticsService;
+		this.r2Service = r2Service;
 	}
 
 
@@ -77,15 +81,14 @@ public class AdminController {
 	            @RequestParam("title") String title,
 	            @RequestParam("description") String description,
 	            @RequestParam("price") BigDecimal price,
-	            @RequestParam(value = "coverImage", required = false) MultipartFile coverImage,
-	            @RequestParam(value = "pdfFile", required = false) MultipartFile pdfFile,
+	            @RequestParam(required = false) String coverImage,
 	            @RequestParam(required = false) String pdfFileUrl
 	    ) {
                    	        
 	    BookRespons savedBook;
 		try {
 			savedBook = bookService
-					.addBook(title, description, price, pdfFile, coverImage,pdfFileUrl);
+					.addBook(title, description, price, coverImage,pdfFileUrl);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -107,8 +110,7 @@ public class AdminController {
 	            @RequestParam("title") String title,
 	            @RequestParam("description") String description,
 	            @RequestParam("price") BigDecimal price,
-	            @RequestParam(value = "coverImage", required = false) MultipartFile coverImage,
-	            @RequestParam(value = "pdfFile", required = false) MultipartFile pdfFile,
+	            @RequestParam(required = false) String coverImage,
 	            @RequestParam(required = false) String pdfFileUrl
 
 	    ) {
@@ -121,7 +123,7 @@ public class AdminController {
 							, description
 							, price
 							, coverImage
-							, pdfFile,pdfFileUrl );
+							,pdfFileUrl );
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -141,6 +143,20 @@ public class AdminController {
 	  public ResponseEntity<Void> delteBook(@PathVariable Long bookId ){
 		  bookService.deleteBook(bookId);
 		  return ResponseEntity.noContent().build();
+	  }
+	  
+	  @GetMapping("/upload-url")
+	  public ResponseEntity<Map<String, String>> getUploadUrl(
+	          @RequestParam String type) {   // type = "cover" أو "pdf"
+
+	      if ("cover".equals(type)) {
+	          return ResponseEntity.ok(r2Service.generatePresignedUploadUrl(
+	              "books/covers", "image/jpeg", "jpg"));
+	      } else if ("pdf".equals(type)) {
+	          return ResponseEntity.ok(r2Service.generatePresignedUploadUrl(
+	              "books/pdfs", "application/pdf", "pdf"));
+	      }
+	      return ResponseEntity.badRequest().build();
 	  }
 	  
 	  
