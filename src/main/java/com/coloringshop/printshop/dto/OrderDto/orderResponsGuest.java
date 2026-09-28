@@ -5,11 +5,9 @@ import java.time.LocalDateTime;
 import java.util.List;
 import com.coloringshop.printshop.model.Status;
 
-public record orderRespons(
+public record orderResponsGuest(
     Long id,
     String customerName,
-    String address,
-    String phone,
     Status status,
     String orderCode,
     BigDecimal totalPrice,

@@ -25,7 +25,7 @@ import com.coloringshop.printshop.security.JwtUtils;
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/api/auth")
+@RequestMapping("v1/api/auth")
 public class AuthController {
 
 	private final AuthenticationManager authenticationManager;

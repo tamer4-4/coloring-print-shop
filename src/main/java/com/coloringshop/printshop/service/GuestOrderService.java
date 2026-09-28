@@ -13,8 +13,11 @@ import org.springframework.transaction.annotation.Transactional;
 import com.coloringshop.printshop.dto.OrderDto.OrderItemRequset;
 import com.coloringshop.printshop.dto.OrderDto.OrderRequest;
 import com.coloringshop.printshop.dto.OrderDto.orderRespons;
+import com.coloringshop.printshop.dto.OrderDto.orderResponsGuest;
+import com.coloringshop.printshop.dto.OrderDto.orderResponsGuestCreate;
 import com.coloringshop.printshop.excption.BookNotFoundException;
 import com.coloringshop.printshop.excption.OrderNotFoundException;
+import com.coloringshop.printshop.mapper.toRespons;
 import com.coloringshop.printshop.model.Book;
 import com.coloringshop.printshop.model.Order;
 import com.coloringshop.printshop.model.OrderItem;
@@ -36,7 +39,7 @@ public class GuestOrderService {
 	}
 
 
-	public orderRespons createOrder(OrderRequest req) {
+	public orderResponsGuestCreate createOrder(OrderRequest req) {
 
 		Order order = new Order();
 		order.setCustomerName(req.customerName());
@@ -69,12 +72,14 @@ public class GuestOrderService {
          order.setTotalPrice(totalPrice);
 		Order savedOrder = orderRepository.save(order);
 
-		return new orderRespons(savedOrder.getId(), savedOrder.getCustomerName(), savedOrder.getAddress(),
-				savedOrder.getPhone(), savedOrder.getStatus(), savedOrder.getPin(),savedOrder.getOrderCode(), savedOrder.getTotalPrice(), savedOrder.getCreatedAt());
+		return new orderResponsGuestCreate(savedOrder.getId(), savedOrder.getCustomerName(),
+				savedOrder.getStatus(), savedOrder.getOrderCode() , savedOrder.getPin()
+				, savedOrder.getTotalPrice(), savedOrder.getCreatedAt()
+				, toRespons.orderItermToRespons(orderItems) );
 
 	}
 
-	public orderRespons getOrderStatus(String orderCode) throws AccessDeniedException, OrderNotFoundException {
+	public orderResponsGuest getOrderStatus(String orderCode) throws AccessDeniedException, OrderNotFoundException {
              
 		Order order = orderRepository.findByOrderCode(orderCode);
 		if (order == null) {
@@ -83,11 +88,12 @@ public class GuestOrderService {
           
 
 
-		return new orderRespons(order.getId(), order.getCustomerName(), order.getAddress(), order.getPhone(),
-				order.getStatus(), order.getPin(),order.getOrderCode() ,order.getTotalPrice(), order.getCreatedAt());
+		return new orderResponsGuest(order.getId(), order.getCustomerName(),
+				order.getStatus() , order.getOrderCode() ,order.getTotalPrice(), order.getCreatedAt() 
+				, toRespons.orderItermToRespons(order.getItems()));
 	}
 
-	public orderRespons updateOrder(String orderCode
+	public orderResponsGuest updateOrder(String orderCode
 			,String pin
 			, OrderRequest orderReq) throws AccessDeniedException, OrderNotFoundException {
 		Order order = orderRepository.findByOrderCode(orderCode);
@@ -131,9 +137,9 @@ public class GuestOrderService {
 
 		Order savedOrder = orderRepository.save(order);
 
-		return new orderRespons(savedOrder.getId(), savedOrder.getCustomerName(), savedOrder.getAddress(),
-				savedOrder.getPhone(), savedOrder.getStatus(), savedOrder.getPin(),savedOrder.getOrderCode(), savedOrder.getTotalPrice(), savedOrder.getCreatedAt());
-
+		return new orderResponsGuest(order.getId(), order.getCustomerName(),
+				order.getStatus() , order.getOrderCode() ,order.getTotalPrice(), order.getCreatedAt() 
+				, toRespons.orderItermToRespons(order.getItems()));
 	}
 	
 	public void deleteOrder(String orderCode

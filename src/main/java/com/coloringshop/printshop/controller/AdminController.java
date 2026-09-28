@@ -20,6 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.coloringshop.printshop.dto.BookDto.BookRespons;
 import com.coloringshop.printshop.dto.OrderDto.OrderRequest;
 import com.coloringshop.printshop.dto.OrderDto.orderRespons;
+import com.coloringshop.printshop.dto.OrderDto.orderResponsGuestCreate;
 import com.coloringshop.printshop.dto.StatisticsResponse.StatisticsResponse;
 import com.coloringshop.printshop.excption.OrderNotFoundException;
 import com.coloringshop.printshop.model.Status;
@@ -153,8 +154,8 @@ public class AdminController {
 	    }
 	    
 	    @PostMapping("/orders/add")
-	    public ResponseEntity<orderRespons> createOrder(@Valid @RequestBody OrderRequest req){
-	    	orderRespons ordrRespons =   guestOrderService.createOrder(req);
+	    public ResponseEntity<orderResponsGuestCreate> createOrder(@Valid @RequestBody OrderRequest req){
+	    	orderResponsGuestCreate ordrRespons =   guestOrderService.createOrder(req);
 	    	return ResponseEntity.ok(ordrRespons);
 	    }
 	    

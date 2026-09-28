@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.coloringshop.printshop.dto.OrderDto.OrderRequest;
 import com.coloringshop.printshop.dto.OrderDto.orderRespons;
+import com.coloringshop.printshop.dto.OrderDto.orderResponsGuest;
+import com.coloringshop.printshop.dto.OrderDto.orderResponsGuestCreate;
 import com.coloringshop.printshop.excption.OrderNotFoundException;
 import com.coloringshop.printshop.service.GuestOrderService;
 
@@ -37,10 +39,10 @@ public class GuestOrderController {
      * إنشاء طلب جديد كضيف
      */
     @PostMapping("/guest")
-    public ResponseEntity<orderRespons> createGuestOrder(
+    public ResponseEntity<orderResponsGuestCreate> createGuestOrder(
             @Valid @RequestBody OrderRequest request) {
         
-        orderRespons response = guestOrderService.createOrder(request);
+        orderResponsGuestCreate response = guestOrderService.createOrder(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
@@ -51,8 +53,8 @@ public class GuestOrderController {
      * @throws OrderNotFoundException 
      */
     @GetMapping("status/{orderCode}")
-    public ResponseEntity<orderRespons> getOrderStatus(@PathVariable String orderCode) throws AccessDeniedException, OrderNotFoundException {
-        orderRespons response = guestOrderService.getOrderStatus(orderCode);
+    public ResponseEntity<orderResponsGuest> getOrderStatus(@PathVariable String orderCode) throws AccessDeniedException, OrderNotFoundException {
+        orderResponsGuest response = guestOrderService.getOrderStatus(orderCode);
         return ResponseEntity.ok(response);
     }
     
@@ -63,8 +65,8 @@ public class GuestOrderController {
      * @throws OrderNotFoundException 
     */
     @PutMapping("/update/{orderCode}")
-    public ResponseEntity<orderRespons> updateOrder(@PathVariable String orderCode, @RequestParam String pin , @RequestBody OrderRequest req) throws AccessDeniedException, OrderNotFoundException {
-        orderRespons response = guestOrderService.updateOrder(orderCode , pin , req);
+    public ResponseEntity<orderResponsGuest> updateOrder(@PathVariable String orderCode, @RequestParam String pin , @RequestBody OrderRequest req) throws AccessDeniedException, OrderNotFoundException {
+        orderResponsGuest response = guestOrderService.updateOrder(orderCode , pin , req);
         return ResponseEntity.ok(response);
     }
     

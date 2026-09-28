@@ -8,10 +8,12 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 
 import com.coloringshop.printshop.dto.OrderDto.OrderItemRequset;
+import com.coloringshop.printshop.dto.OrderDto.OrderItemResponse;
 import com.coloringshop.printshop.dto.OrderDto.OrderRequest;
 import com.coloringshop.printshop.dto.OrderDto.orderRespons;
 import com.coloringshop.printshop.excption.BookNotFoundException;
 import com.coloringshop.printshop.excption.OrderNotFoundException;
+import com.coloringshop.printshop.mapper.toRespons;
 import com.coloringshop.printshop.model.Book;
 import com.coloringshop.printshop.model.Order;
 import com.coloringshop.printshop.model.OrderItem;
@@ -44,10 +46,10 @@ public class AdminOrderService {
 							it.getAddress(),
 							it.getPhone(),
 							it.getStatus(),
-							it.getPin(),
 							it.getOrderCode(),
 						    it.getTotalPrice(),
-						     it.getCreatedAt()
+						     it.getCreatedAt(),
+						     toRespons.orderItermToRespons(it.getItems())
 							);
 				}).collect(Collectors.toList());
 		return ordersList;
@@ -89,10 +91,12 @@ public class AdminOrderService {
 		Order savedOrder = orderRepository.save(order);
 
 		return new orderRespons(savedOrder.getId(), savedOrder.getCustomerName(), savedOrder.getAddress(),
-				savedOrder.getPhone(), savedOrder.getStatus(), savedOrder.getPin(),savedOrder.getOrderCode(), savedOrder.getTotalPrice(), savedOrder.getCreatedAt());
+				savedOrder.getPhone(), savedOrder.getStatus(),savedOrder.getOrderCode(), savedOrder.getTotalPrice(), savedOrder.getCreatedAt()
+				, toRespons.orderItermToRespons(items));
 
 
 	}
+	
 
 	public void deleteOrder(String orderCode) throws OrderNotFoundException {
 		Order order = orderRepository.findByOrderCode(orderCode);
@@ -111,7 +115,9 @@ public class AdminOrderService {
 		order.setStatus(status);
 		Order savedOrder = orderRepository.save(order);
 		 return new orderRespons(savedOrder.getId(), savedOrder.getCustomerName(), savedOrder.getAddress(),
-					savedOrder.getPhone(), savedOrder.getStatus(), savedOrder.getPin(),savedOrder.getOrderCode(), savedOrder.getTotalPrice() , savedOrder.getCreatedAt());
+					savedOrder.getPhone(), savedOrder.getStatus(),savedOrder.getOrderCode(), savedOrder.getTotalPrice() , savedOrder.getCreatedAt()
+				,toRespons.orderItermToRespons(order.getItems())	
+				 );
 
 	}
 	}
