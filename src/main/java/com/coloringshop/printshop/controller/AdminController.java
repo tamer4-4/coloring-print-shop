@@ -81,14 +81,14 @@ public class AdminController {
 	            @RequestParam("title") String title,
 	            @RequestParam("description") String description,
 	            @RequestParam("price") BigDecimal price,
-	            @RequestParam(required = false) String coverImage,
+	            @RequestParam(required = false) String coverImageUrl,
 	            @RequestParam(required = false) String pdfFileUrl
 	    ) {
                    	        
 	    BookRespons savedBook;
 		try {
 			savedBook = bookService
-					.addBook(title, description, price, coverImage,pdfFileUrl);
+					.addBook(title, description, price, coverImageUrl,pdfFileUrl);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -110,7 +110,7 @@ public class AdminController {
 	            @RequestParam("title") String title,
 	            @RequestParam("description") String description,
 	            @RequestParam("price") BigDecimal price,
-	            @RequestParam(required = false) String coverImage,
+	            @RequestParam(required = false) String coverImageUrl,
 	            @RequestParam(required = false) String pdfFileUrl
 
 	    ) {
@@ -122,7 +122,7 @@ public class AdminController {
 							,title
 							, description
 							, price
-							, coverImage
+							, coverImageUrl
 							,pdfFileUrl );
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
