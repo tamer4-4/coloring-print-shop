@@ -15,6 +15,7 @@ public class toRespons {
 			                            item.getBook().getId(),
 			                            item.getBook().getTitle(),
 			                            item.getBook().getCoverImageUrl(),
+			                            item.getBook().getPdfFileUrl(),
 			                            item.getQuantity(),
 			                            item.getPriceAtOrder()          // لو مفيش عمود price في OrderItem استخدم: item.getBook().getPrice()
 			                    ))
