@@ -6,6 +6,7 @@ public record OrderItemResponse(
         Long bookId,
         String bookTitle,
         String coverImageUrl,
+                String pdfFileUrl,
         Integer quantity,
         BigDecimal price
 ) {
