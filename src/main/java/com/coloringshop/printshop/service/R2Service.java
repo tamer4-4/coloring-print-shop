@@ -20,6 +20,9 @@ public class R2Service {
     @Value("${R2_ENDPOINT}")
     private String endpoint;
 
+     @Value("${R2_PUBLIC_URL}")
+    private String publicUrl;
+    
     public R2Service(S3Presigner presigner) {
         this.presigner = presigner;
     }
@@ -44,7 +47,7 @@ public class R2Service {
                 .build();
 
         String uploadUrl = presigner.presignPutObject(presignRequest).url().toString();
-        String finalUrl = endpoint + "/" + bucketName + "/" + key;
+        String finalUrl = publicUrl + "/" + key;
 
         return Map.of(
             "uploadUrl", uploadUrl,
