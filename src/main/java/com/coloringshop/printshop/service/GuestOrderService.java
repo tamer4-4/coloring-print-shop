@@ -156,7 +156,8 @@ public class GuestOrderService {
 		if(!(order.getPin().equals(pin))) {
 			throw new AccessDeniedException("غير مسموح  لك حذف هذا الطلب");
 		}
-		 orderRepository.delete(order);
+		order.setStatus(Status.CANCELLED);
+		 orderRepository.save(order);
 	}
 
 }
